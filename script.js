@@ -1,15 +1,15 @@
 document.getElementById("calculateBtn").addEventListener("click", calculateEMI);
 
 function calculateEMI() {
-  // const amount = parseFloat(document.getElementById("amount").value);
-  // const rate = parseFloat(document.getElementById("rate").value);
-  // const tenure = parseInt(document.getElementById("tenure").value);
-  // const processingFee = parseFloat(document.getElementById("processingFee").value) || 0;
+  const amount = parseFloat(document.getElementById("amount").value);
+  const rate = parseFloat(document.getElementById("rate").value);
+  const tenure = parseInt(document.getElementById("tenure").value);
+  const processingFee = parseFloat(document.getElementById("processingFee").value) || 0;
 
-  const amount = 88532;
-  const rate = 16;
-  const tenure = 6;
-  const processingFee = 299;
+  // const amount = 88532;
+  // const rate = 16;
+  // const tenure = 19;
+  // const processingFee = 299;
 
   if (!amount || !rate || !tenure) {
     alert("Please enter all required fields");

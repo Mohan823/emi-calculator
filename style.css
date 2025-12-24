@@ -1,3 +1,6 @@
+/* =========================
+   ROOT THEME VARIABLES
+========================= */
 :root {
   --primary: #1976d2;
   --primary-dark: #115293;
@@ -7,22 +10,29 @@
   --text-muted: #6b7280;
   --border: #e5e7eb;
   --radius: 14px;
-  --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
-  --shadow-md: 0 6px 18px rgba(0,0,0,0.12);
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
+/* =========================
+   BASE RESET
+========================= */
 * {
   box-sizing: border-box;
   font-family: "Roboto", "Segoe UI", sans-serif;
 }
 
+html,
 body {
   margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--text-main);
 }
 
-/* Layout */
+/* =========================
+   CONTAINER
+========================= */
 .container {
   max-width: 1200px;
   margin: auto;
@@ -35,28 +45,49 @@ h2 {
   font-weight: 500;
 }
 
-/* Grid */
+/* =========================
+   MAIN LAYOUT (FIXED)
+========================= */
 .layout {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr;
   gap: 20px;
+  transition: grid-template-columns 0.5s ease;
 }
 
+/* After calculation (desktop only) */
+.layout.show-summary {
+  grid-template-columns: 1fr 360px;
+}
+
+/* Mobile: always stacked */
 @media (max-width: 900px) {
-  .layout {
+  .layout,
+  .layout.show-summary {
     grid-template-columns: 1fr;
   }
 }
 
-/* Card */
+/* 🔥 KEY FIX: allow grid children to shrink */
+.layout > .card {
+  min-width: 0;
+}
+
+/* =========================
+   CARD
+========================= */
 .card {
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
   padding: 20px;
+  overflow: hidden; /* 🔥 contain table overflow */
+  transition: all 0.4s ease;
 }
 
-/* Form */
+/* =========================
+   FORM
+========================= */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -88,10 +119,12 @@ input {
 input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(25,118,210,0.15);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
 }
 
-/* Button */
+/* =========================
+   BUTTON
+========================= */
 button {
   width: 100%;
   margin-top: 18px;
@@ -105,6 +138,8 @@ button {
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: background 0.2s ease, transform 0.1s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 button:hover {
@@ -115,9 +150,34 @@ button:active {
   transform: scale(0.98);
 }
 
-/* EMI Table */
-table {
+button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+button:active::after {
+  transform: scaleX(1);
+}
+
+/* =========================
+   TABLE SCROLL FIX (CRITICAL)
+========================= */
+.table-wrapper {
   width: 100%;
+  overflow-y: hidden;
+  overflow-x: auto; /* ✅ only table scrolls */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table itself */
+#emiTable {
+  width: 100%;
+  min-width: 700px; /* forces horizontal scroll on mobile */
   margin-top: 18px;
   border-collapse: collapse;
   font-size: 13px;
@@ -142,112 +202,58 @@ td:first-child {
   text-align: center;
 }
 
-/* Invoice Summary */
+/* Swipe hint */
+@media (max-width: 600px) {
+  .table-wrapper::after {
+    content: "← swipe →";
+    display: block;
+    text-align: right;
+    font-size: 12px;
+    color: #6b7280;
+    padding-top: 4px;
+  }
+}
+
+/* =========================
+   TABLE ROW ANIMATION
+========================= */
+#emiTable tbody tr {
+  animation: fadeUp 0.35s ease forwards;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   INVOICE / SUMMARY CARD
+========================= */
 .invoice {
   position: sticky;
+  align-items: start;
+  max-height: fit-content;
   top: 16px;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.layout.show-summary .invoice {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .invoice h3 {
   text-align: center;
   margin-bottom: 16px;
   font-weight: 500;
-}
-
-.invoice-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  font-size: 14px;
-}
-
-.invoice-row span:last-child {
-  font-weight: 500;
-}
-
-.invoice-row.total {
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--primary);
-}
-
-/* ===== Dynamic Layout Transition ===== */
-.layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  transition: grid-template-columns 0.5s ease;
-}
-
-/* After calculation (desktop only) */
-.layout.show-summary {
-  grid-template-columns: 1fr 360px;
-}
-
-/* Mobile: always stacked */
-@media (max-width: 900px) {
-  .layout,
-  .layout.show-summary {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ===== Invoice Slide Animation ===== */
-.invoice {
-  opacity: 0;
-  transform: translateX(40px);
-  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Visible state */
-.layout.show-summary .invoice {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-/* ===== Table Smooth Resize ===== */
-.card {
-  transition: all 0.4s ease;
-}
-
-/* ===== Button Micro Animation ===== */
-button {
-  position: relative;
-  overflow: hidden;
-}
-
-button::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.25);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.35s ease;
-}
-
-button:active::after {
-  transform: scaleX(1);
-}
-
-#emiTable tbody tr {
-  animation: fadeUp 0.4s ease forwards;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.invoice-row.highlight {
-  background: #f1f5f9;
-  border-radius: 8px;
-  padding: 10px;
-  font-weight: 600;
-  color: #b91c1c;
 }
 
 /* Summary blocks */
@@ -271,16 +277,16 @@ button:active::after {
 }
 
 .summary-block.total {
-  background: #1976d2;
+  background: var(--primary);
   color: #fff;
   font-size: 16px;
   font-weight: 600;
   margin-top: 14px;
 }
 
-/* Breakup section */
+/* Breakup rows */
 .breakup {
-  border: 1px solid #eee;
+  border: 1px dashed var(--border);
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 10px;
@@ -294,7 +300,9 @@ button:active::after {
   color: #374151;
 }
 
-/* Info tooltip (reuse your existing one if already added) */
+/* =========================
+   INFO TOOLTIP
+========================= */
 .info-icon {
   position: relative;
   margin-left: 6px;
@@ -302,7 +310,7 @@ button:active::after {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  color: #1976d2;
+  color: var(--primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
